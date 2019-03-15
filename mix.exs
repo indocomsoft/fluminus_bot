@@ -35,7 +35,10 @@ defmodule FluminusBot.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:ex_gram, "~> 0.5.0"},
       {:fluminus, "~> 0.2.3"},
+      # TODO: Remove when ex_gram merges hackney version relaxation
+      {:hackney, "~> 1.13", override: true},
       {:dialyxir, "~> 1.0.0-rc.4", only: :dev, runtime: false},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
       {:excoveralls, "~> 0.10", only: :test},
