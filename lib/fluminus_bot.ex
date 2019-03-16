@@ -3,7 +3,6 @@ defmodule FluminusBot do
   Documentation for FluminusBot.
   """
   @bot :fluminus_bot
-  def bot, do: @bot
 
   use ExGram.Bot, name: @bot
 

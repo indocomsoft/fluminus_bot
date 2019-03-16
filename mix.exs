@@ -35,20 +35,19 @@ defmodule FluminusBot.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger],
       mod: {FluminusBot.Application, []},
-      applications: applications(Mix.env())
+      extra_applications: [:logger]
     ]
   end
-
-  defp applications(_), do: [:hackney, :logger]
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:ecto_sql, "~> 3.0"},
       {:ex_gram, "~> 0.6"},
       {:fluminus, "~> 0.2"},
       {:jason, "~> 1.1"},
+      {:postgrex, ">= 0.0.0"},
       {:dialyxir, "~> 1.0.0-rc.4", only: :dev, runtime: false},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
       {:excoveralls, "~> 0.10", only: :test},
