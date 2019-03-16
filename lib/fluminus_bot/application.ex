@@ -14,7 +14,8 @@ defmodule FluminusBot.Application do
       FluminusBot.Repo,
       ExGram,
       {FluminusBot, [method: :polling, token: token]},
-      {Plug.Cowboy, [scheme: scheme, plug: FluminusBot.Router, options: [port: port]]}
+      {Plug.Cowboy, [scheme: scheme, plug: FluminusBot.Router, options: [port: port]]},
+      FluminusBot.TokenRefresher
     ]
 
     opts = [strategy: :one_for_one, name: FluminusBot.Supervisor]
