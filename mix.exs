@@ -21,28 +21,38 @@ defmodule FluminusBot.MixProject do
         "coveralls.detail": :test,
         "coveralls.post": :test,
         "coveralls.html": :test
-      ]
+      ],
+      aliases: aliases()
+    ]
+  end
+
+  defp aliases do
+    [
+      start: "run --no-halt"
     ]
   end
 
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger],
+      mod: {FluminusBot.Application, []},
+      applications: applications(Mix.env())
     ]
   end
+
+  defp applications(_), do: [:hackney, :logger]
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ex_gram, "~> 0.5.0"},
-      {:fluminus, "~> 0.2.3"},
-      # TODO: Remove when ex_gram merges hackney version relaxation
-      {:hackney, "~> 1.13", override: true},
+      {:ex_gram, "~> 0.6"},
+      {:fluminus, "~> 0.2"},
+      {:jason, "~> 1.1"},
       {:dialyxir, "~> 1.0.0-rc.4", only: :dev, runtime: false},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
       {:excoveralls, "~> 0.10", only: :test},
-      {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false}
+      {:credo, "~> 1.0", only: [:dev, :test], runtime: false}
     ]
   end
 

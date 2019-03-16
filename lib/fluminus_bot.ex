@@ -2,17 +2,17 @@ defmodule FluminusBot do
   @moduledoc """
   Documentation for FluminusBot.
   """
+  @bot :fluminus_bot
+  def bot, do: @bot
 
-  @doc """
-  Hello world.
+  use ExGram.Bot, name: @bot
 
-  ## Examples
+  require Logger
 
-      iex> FluminusBot.hello()
-      :world
+  command("start")
 
-  """
-  def hello do
-    :world
+  def handle(message, cnt) do
+    Logger.info("message = #{inspect(message)}")
+    Logger.info("cnt = #{inspect(cnt)}")
   end
 end

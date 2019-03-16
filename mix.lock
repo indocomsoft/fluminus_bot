@@ -7,7 +7,7 @@
   "earmark": {:hex, :earmark, "1.3.1", "73812f447f7a42358d3ba79283cfa3075a7580a3a2ed457616d6517ac3738cb9", [:mix], [], "hexpm"},
   "erlex": {:hex, :erlex, "0.2.1", "cee02918660807cbba9a7229cae9b42d1c6143b768c781fa6cee1eaf03ad860b", [:mix], [], "hexpm"},
   "ex_doc": {:hex, :ex_doc, "0.19.3", "3c7b0f02851f5fc13b040e8e925051452e41248f685e40250d7e40b07b9f8c10", [:mix], [{:earmark, "~> 1.2", [hex: :earmark, repo: "hexpm", optional: false]}, {:makeup_elixir, "~> 0.10", [hex: :makeup_elixir, repo: "hexpm", optional: false]}], "hexpm"},
-  "ex_gram": {:hex, :ex_gram, "0.5.0", "18425bcf80261063e7bd6dcd5785238c0d50d9a5af61b6b3fb62222871dcd37d", [:mix], [{:hackney, "~> 1.12.1", [hex: :hackney, repo: "hexpm", optional: false]}, {:maxwell, "~> 2.2.1", [hex: :maxwell, repo: "hexpm", optional: false]}, {:poison, "~> 3.1", [hex: :poison, repo: "hexpm", optional: false]}], "hexpm"},
+  "ex_gram": {:hex, :ex_gram, "0.6.0", "e8207030dc009d3273b30386f4b034692198c27289766a9f22452e319c9fb551", [:mix], [{:hackney, "~> 1.12", [hex: :hackney, repo: "hexpm", optional: false]}, {:jason, ">= 1.0.0", [hex: :jason, repo: "hexpm", optional: true]}, {:maxwell, "~> 2.2.1", [hex: :maxwell, repo: "hexpm", optional: false]}, {:poison, ">= 1.0.0", [hex: :poison, repo: "hexpm", optional: true]}], "hexpm"},
   "excoveralls": {:hex, :excoveralls, "0.10.6", "e2b9718c9d8e3ef90bc22278c3f76c850a9f9116faf4ebe9678063310742edc2", [:mix], [{:hackney, "~> 1.13", [hex: :hackney, repo: "hexpm", optional: false]}, {:jason, "~> 1.0", [hex: :jason, repo: "hexpm", optional: false]}], "hexpm"},
   "floki": {:hex, :floki, "0.20.4", "be42ac911fece24b4c72f3b5846774b6e61b83fe685c2fc9d62093277fb3bc86", [:mix], [{:html_entities, "~> 0.4.0", [hex: :html_entities, repo: "hexpm", optional: false]}, {:mochiweb, "~> 2.15", [hex: :mochiweb, repo: "hexpm", optional: false]}], "hexpm"},
   "fluminus": {:hex, :fluminus, "0.2.5", "fe73cfb5eb7a55c2fd3794fcdd54e76b325faa0d037cd562ae0c3038a5e7361c", [:mix], [{:cookie, "~> 0.1.1", [hex: :cookie, repo: "hexpm", optional: false]}, {:floki, "~> 0.20.0", [hex: :floki, repo: "hexpm", optional: false]}, {:html_entities, "~> 0.4", [hex: :html_entities, repo: "hexpm", optional: false]}, {:html_sanitize_ex, "~> 1.3.0", [hex: :html_sanitize_ex, repo: "hexpm", optional: false]}, {:httpoison, "~> 1.4", [hex: :httpoison, repo: "hexpm", optional: false]}, {:jason, "~> 1.1", [hex: :jason, repo: "hexpm", optional: false]}], "hexpm"},
@@ -25,7 +25,6 @@
   "mochiweb": {:hex, :mochiweb, "2.18.0", "eb55f1db3e6e960fac4e6db4e2db9ec3602cc9f30b86cd1481d56545c3145d2e", [:rebar3], [], "hexpm"},
   "nimble_parsec": {:hex, :nimble_parsec, "0.5.0", "90e2eca3d0266e5c53f8fbe0079694740b9c91b6747f2b7e3c5d21966bba8300", [:mix], [], "hexpm"},
   "parse_trans": {:hex, :parse_trans, "3.3.0", "09765507a3c7590a784615cfd421d101aec25098d50b89d7aa1d66646bc571c1", [:rebar3], [], "hexpm"},
-  "poison": {:hex, :poison, "3.1.0", "d9eb636610e096f86f25d9a46f35a9facac35609a7591b3be3326e99a0484665", [:mix], [], "hexpm"},
   "ssl_verify_fun": {:hex, :ssl_verify_fun, "1.1.4", "f0eafff810d2041e93f915ef59899c923f4568f4585904d010387ed74988e77b", [:make, :mix, :rebar3], [], "hexpm"},
   "unicode_util_compat": {:hex, :unicode_util_compat, "0.4.1", "d869e4c68901dd9531385bb0c8c40444ebf624e60b6962d95952775cac5e90cd", [:rebar3], [], "hexpm"},
 }
