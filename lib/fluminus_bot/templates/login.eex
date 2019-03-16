@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <title>Login to Fluminus</title>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Login to Fluminus</h1>
+      <div class="alert alert-danger" role="alert">
+        <p>Logging in requires your credentials to pass through the fluminus server.</p>
+        <p>We promise not to store your username and password, but we will need to store tokens we got from the server.</p>
+        <p><strong>DO THIS AT YOUR OWN RISK</strong></p>
+      </div>
+      <form method="post" action="auth">
+        <div class="form-group">
+          <label for="nusnet">NUSNET ID</label>
+          <input type="text" class="form-control" name="nusnet" id="nusnet" placeholder="A0123456" />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" class="form-control" name="password" id="password" placeholder="Password" />
+        </div>
+        <input type="hidden" name="chat_id" value="<%= chat_id %>" />
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+    </div>
+  </body>
+</html>

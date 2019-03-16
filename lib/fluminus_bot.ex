@@ -21,7 +21,7 @@ defmodule FluminusBot do
       username: from[:username]
     })
 
-    reply_markup = create_inline([[%{text: "Login", url: "https://new.indocomsoft.com"}]])
+    reply_markup = create_inline([[%{text: "Login", url: url(chat_id)}]])
 
     answer(cnt, "Welcome to Fluminus Bot, #{first_name}! Let's get you set up.",
       reply_markup: reply_markup
@@ -31,5 +31,19 @@ defmodule FluminusBot do
   def handle(message, cnt) do
     Logger.info("message = #{inspect(message)}")
     Logger.info("cnt = #{inspect(cnt)}")
+  end
+
+  defp url(chat_id) do
+    [scheme: scheme, hostname: hostname, port: port] = Application.get_env(:fluminus_bot, :url)
+    scheme = Atom.to_string(scheme)
+    query = URI.encode_query(%{chat_id: chat_id})
+
+    URI.to_string(%URI{
+      scheme: scheme,
+      host: hostname,
+      port: port,
+      path: "/",
+      query: query
+    })
   end
 end

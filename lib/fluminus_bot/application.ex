@@ -6,10 +6,15 @@ defmodule FluminusBot.Application do
   require Logger
 
   def start(_type, _args) do
+    [scheme: scheme, hostname: _, port: port] = Application.get_env(:fluminus_bot, :url)
+
+    token = ExGram.Config.get(:ex_gram, :token)
+
     children = [
       FluminusBot.Repo,
       ExGram,
-      {FluminusBot, [method: :polling, token: ExGram.Config.get(:ex_gram, :token)]}
+      {FluminusBot, [method: :polling, token: token]},
+      {Plug.Cowboy, [scheme: scheme, plug: FluminusBot.Router, options: [port: port]]}
     ]
 
     opts = [strategy: :one_for_one, name: FluminusBot.Supervisor]
