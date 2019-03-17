@@ -53,7 +53,7 @@ defmodule FluminusBot.TokenRefresher do
         %User{jwt: jwt, refresh_token: refresh_token, chat_id: chat_id} ->
           auth = Authorization.new(jwt, refresh_token)
 
-          refresh_token(auth, chat_id)
+          renew_jwt(auth, chat_id)
 
           {:noreply, state}
 
@@ -65,7 +65,7 @@ defmodule FluminusBot.TokenRefresher do
     end
   end
 
-  defp refresh_token(auth = %Authorization{}, chat_id) when is_integer(chat_id) do
+  defp renew_jwt(auth = %Authorization{}, chat_id) when is_integer(chat_id) do
     case Authorization.renew_jwt(auth) do
       {:ok, auth = %Authorization{}} ->
         jwt = Authorization.get_jwt(auth)
