@@ -21,29 +21,34 @@ defmodule FluminusBot.TokenRefresher do
 
   @impl true
   def init(_) do
-    {:ok, %{}}
+    Logger.info("TokenRefresher: loading all chat_ids")
+    chat_ids = Accounts.get_all_chat_ids()
+
+    Enum.each(chat_ids, &schedule_update/1)
+
+    {:ok, MapSet.new(chat_ids)}
   end
 
   @impl true
   def handle_call({:add, chat_id}, _from, state) when is_integer(chat_id) and is_map(state) do
-    if Map.has_key?(state, chat_id) do
+    if MapSet.member?(state, chat_id) do
       {:reply, {:ok, :existing}, state}
     else
       schedule_update(chat_id)
-      {:reply, {:ok, :new}, Map.put(state, chat_id, true)}
+      {:reply, {:ok, :new}, MapSet.put(state, chat_id)}
     end
   end
 
   @impl true
   def handle_call(:list, _from, state) when is_map(state) do
-    {:reply, {:ok, Map.keys(state)}, state}
+    {:reply, {:ok, MapSet.to_list(state)}, state}
   end
 
   @impl true
   def handle_info({:update, chat_id}, state) when is_map(state) do
     Logger.info("Updating for #{chat_id}")
 
-    if Map.has_key?(state, chat_id) do
+    if MapSet.member?(state, chat_id) do
       case Accounts.get_user_by_chat_id(chat_id) do
         %User{jwt: jwt, refresh_token: refresh_token, chat_id: chat_id} ->
           auth = Authorization.new(jwt, refresh_token)
@@ -53,7 +58,7 @@ defmodule FluminusBot.TokenRefresher do
           {:noreply, state}
 
         nil ->
-          {:noreply, Map.delete(state, chat_id)}
+          {:noreply, MapSet.delete(state, chat_id)}
       end
     else
       {:noreply, state}
@@ -103,7 +108,7 @@ defmodule FluminusBot.TokenRefresher do
   end
 
   defp schedule_update(chat_id) do
-    time = Enum.random(1..@interval)
+    time = Enum.random(100..@interval)
     Logger.info("Scheduling after #{time} ms")
     Process.send_after(self(), {:update, chat_id}, time)
   end

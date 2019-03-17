@@ -8,13 +8,17 @@ defmodule FluminusBot do
 
   require Logger
 
+  alias FluminusBot.Accounts
+
   command("start")
+  command("delete")
 
   def handle(
         {:command, :start, %{from: from = %{id: chat_id, first_name: first_name}}},
         cnt
-      ) do
-    FluminusBot.Accounts.create_or_update_user(%{
+      )
+      when is_integer(chat_id) and is_binary(first_name) do
+    Accounts.create_or_update_user(%{
       chat_id: chat_id,
       first_name: first_name,
       last_name: from[:last_name],
@@ -24,6 +28,16 @@ defmodule FluminusBot do
     answer(cnt, "Welcome to Fluminus Bot, #{first_name}! Let's get you set up.",
       reply_markup: reply_markup(chat_id)
     )
+  end
+
+  def handle({:command, :delete, %{from: %{id: chat_id}}}, cnt) when is_integer(chat_id) do
+    case Accounts.delete_user_by_chat_id(chat_id) do
+      :ok ->
+        answer(cnt, "Your account has been deleted.")
+
+      :error ->
+        answer(cnt, "Unable to delete your account. Please try again.")
+    end
   end
 
   def handle(message, cnt) do

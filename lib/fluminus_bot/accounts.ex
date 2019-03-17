@@ -34,4 +34,28 @@ defmodule FluminusBot.Accounts do
   def get_all_users do
     Repo.all(User)
   end
+
+  @spec get_all_chat_ids :: [integer()]
+  def get_all_chat_ids do
+    User
+    |> select([u], u.chat_id)
+    |> Repo.all()
+  end
+
+  @spec delete_user_by_chat_id(integer()) :: :ok | :error
+  def delete_user_by_chat_id(chat_id) when is_integer(chat_id) do
+    User
+    |> where(chat_id: ^chat_id)
+    |> Repo.one()
+    |> case do
+      user = %User{} ->
+        case Repo.delete(user) do
+          {:ok, _} -> :ok
+          {:error, _} -> :error
+        end
+
+      nil ->
+        :ok
+    end
+  end
 end

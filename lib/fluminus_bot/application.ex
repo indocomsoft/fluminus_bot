@@ -23,12 +23,6 @@ defmodule FluminusBot.Application do
 
     Logger.info("FluminusBot started")
 
-    FluminusBot.Accounts.get_all_users()
-    |> Enum.map(& &1.chat_id)
-    |> Enum.each(&FluminusBot.TokenRefresher.add_new_chat_id/1)
-
-    Logger.info("Added chat_ids to TokenRefresher")
-
     result
   end
 end
