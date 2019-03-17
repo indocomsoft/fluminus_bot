@@ -14,4 +14,12 @@ defmodule FluminusBot.Accounts.UserModule do
 
     timestamps()
   end
+
+  @required_fields ~w(user_id module_id)a
+
+  def changeset(users_modules = %__MODULE__{}, params \\ %{}) do
+    users_modules
+    |> cast(params, @required_fields)
+    |> validate_required(@required_fields)
+  end
 end

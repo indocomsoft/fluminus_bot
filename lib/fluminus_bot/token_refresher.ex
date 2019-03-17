@@ -71,7 +71,7 @@ defmodule FluminusBot.TokenRefresher do
         jwt = Authorization.get_jwt(auth)
         refresh_token = Authorization.get_refresh_token(auth)
 
-        Accounts.create_or_update_user(%{
+        Accounts.insert_or_update_user(%{
           chat_id: chat_id,
           jwt: jwt,
           refresh_token: refresh_token

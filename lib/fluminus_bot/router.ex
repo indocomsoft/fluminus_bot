@@ -45,7 +45,7 @@ defmodule FluminusBot.Router do
         jwt = Authorization.get_jwt(authorization)
         refresh_token = Authorization.get_refresh_token(authorization)
 
-        Accounts.create_or_update_user(%{chat_id: chat_id, jwt: jwt, refresh_token: refresh_token})
+        Accounts.insert_or_update_user(%{chat_id: chat_id, jwt: jwt, refresh_token: refresh_token})
 
         ExGram.send_message(chat_id, "You are logged in!")
         FluminusBot.TokenRefresher.add_new_chat_id(chat_id)

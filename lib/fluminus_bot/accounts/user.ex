@@ -5,6 +5,7 @@ defmodule FluminusBot.Accounts.User do
 
   use Ecto.Schema
   import Ecto.Changeset
+  alias FluminusBot.Accounts.{Module, UserModule}
 
   schema "users" do
     field(:first_name, :string)
@@ -14,6 +15,8 @@ defmodule FluminusBot.Accounts.User do
     field(:push_enabled, :boolean, default: false)
     field(:jwt, :string)
     field(:refresh_token, :string)
+
+    many_to_many(:modules, Module, join_through: UserModule)
 
     timestamps()
   end

@@ -6,10 +6,10 @@ defmodule FluminusBot.Accounts do
 
   alias FluminusBot.Repo
 
-  alias FluminusBot.Accounts.User
+  alias FluminusBot.Accounts.{Module, User, UserModule}
 
-  @spec create_or_update_user(map()) :: {:ok, %User{}} | {:error, Ecto.Changeset.t()}
-  def create_or_update_user(attrs = %{chat_id: chat_id}) when is_integer(chat_id) do
+  @spec insert_or_update_user(map()) :: {:ok, %User{}} | {:error, Ecto.Changeset.t()}
+  def insert_or_update_user(attrs = %{chat_id: chat_id}) when is_integer(chat_id) do
     User
     |> where(chat_id: ^chat_id)
     |> Repo.one()
@@ -56,6 +56,42 @@ defmodule FluminusBot.Accounts do
 
       nil ->
         :ok
+    end
+  end
+
+  def insert_or_update_module(
+        attrs = %{luminus_id: luminus_id, code: code, name: name, term: term}
+      )
+      when is_binary(luminus_id) and is_binary(code) and is_binary(name) and is_binary(term) do
+    Module
+    |> where(luminus_id: ^luminus_id)
+    |> Repo.one()
+    |> case do
+      nil ->
+        Module.changeset(%Module{}, attrs)
+
+      module ->
+        Module.changeset(module, attrs)
+    end
+    |> Repo.insert_or_update()
+  end
+
+  def insert_or_update_user_modules(%User{id: user_id}, modules) when is_list(modules) do
+    for %Module{id: module_id} <- modules do
+      attrs = %{user_id: user_id, module_id: module_id}
+
+      UserModule
+      |> where(user_id: ^user_id)
+      |> where(module_id: ^module_id)
+      |> Repo.one()
+      |> case do
+        nil ->
+          UserModule.changeset(%UserModule{}, attrs)
+
+        user_module = %UserModule{} ->
+          UserModule.changeset(user_module, attrs)
+      end
+      |> Repo.insert_or_update()
     end
   end
 end
