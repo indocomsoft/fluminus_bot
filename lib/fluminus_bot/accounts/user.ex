@@ -13,13 +13,13 @@ defmodule FluminusBot.Accounts.User do
     field(:chat_id, :integer)
     field(:push_enabled, :boolean, default: false)
     field(:jwt, :string)
-    field(:idsrv, :string)
+    field(:refresh_token, :string)
 
     timestamps()
   end
 
   @required_fields ~w(chat_id first_name)a
-  @optional_fields ~w(last_name username push_enabled jwt idsrv)a
+  @optional_fields ~w(last_name username push_enabled jwt refresh_token)a
 
   def changeset(user = %__MODULE__{}, params \\ %{}) do
     user

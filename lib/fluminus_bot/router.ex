@@ -2,6 +2,7 @@ defmodule FluminusBot.Router do
   @templates_location "lib/fluminus_bot/templates/"
   use Plug.Router
 
+  alias Fluminus.Authorization
   alias FluminusBot.Accounts
   alias Plug.Conn
 
@@ -20,7 +21,7 @@ defmodule FluminusBot.Router do
       %{"chat_id" => chat_id} ->
         body =
           EEx.eval_file(Path.join(@templates_location, "login.eex"),
-            chat_id: conn.params["chat_id"]
+            chat_id: chat_id
           )
 
         Conn.resp(conn, 200, body)
@@ -39,12 +40,16 @@ defmodule FluminusBot.Router do
     %{params: %{"nusnet" => nusnet, "password" => password, "chat_id" => chat_id}} = conn
     chat_id = String.to_integer(chat_id)
 
-    case Fluminus.Authorization.jwt(nusnet, password) do
-      {:ok, %{jwt: jwt, client: %{cookies: %{"idsrv" => idsrv}}}} ->
-        Accounts.create_or_update_user(%{chat_id: chat_id, jwt: jwt, idsrv: idsrv})
+    case Authorization.jwt(nusnet, password) do
+      {:ok, authorization = %Authorization{}} ->
+        jwt = Authorization.get_jwt(authorization)
+        refresh_token = Authorization.get_refresh_token(authorization)
 
-        Conn.resp(conn, 200, "Logged in!")
+        Accounts.create_or_update_user(%{chat_id: chat_id, jwt: jwt, refresh_token: refresh_token})
+
         ExGram.send_message(chat_id, "You are logged in!")
+        FluminusBot.TokenRefresher.add_new_chat_id(chat_id)
+        Conn.resp(conn, 200, "Logged in! You can close this now.")
 
       {:error, :invalid_credentials} ->
         serve_error(

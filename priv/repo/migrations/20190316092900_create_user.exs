@@ -9,7 +9,7 @@ defmodule FluminusBot.Repo.Migrations.CreateUser do
       add(:chat_id, :int, null: false)
       add(:push_enabled, :boolean, default: false)
       add(:jwt, :string, size: 2048)
-      add(:idsrv, :string, size: 1024)
+      add(:refresh_token, :string, size: 1024)
 
       timestamps()
     end

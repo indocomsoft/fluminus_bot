@@ -6,7 +6,7 @@ defmodule FluminusBot.Application do
   require Logger
 
   def start(_type, _args) do
-    [scheme: scheme, hostname: _, port: port] = Application.get_env(:fluminus_bot, :url)
+    [scheme: scheme, hostname: _, port: port] = Application.get_env(:fluminus_bot, :server_url)
 
     token = ExGram.Config.get(:ex_gram, :token)
 
@@ -22,6 +22,12 @@ defmodule FluminusBot.Application do
     result = Supervisor.start_link(children, opts)
 
     Logger.info("FluminusBot started")
+
+    FluminusBot.Accounts.get_all_users()
+    |> Enum.map(& &1.chat_id)
+    |> Enum.each(&FluminusBot.TokenRefresher.add_new_chat_id/1)
+
+    Logger.info("Added chat_ids to TokenRefresher")
 
     result
   end
