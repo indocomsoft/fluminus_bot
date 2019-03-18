@@ -5,8 +5,7 @@ defmodule FluminusBot.Worker.AnnouncementPoller do
   """
 
   # 30 minutes
-  # @interval 30 * 60 * 1000
-  @interval 10000
+  @interval 30 * 60 * 1000
 
   use GenServer
 
