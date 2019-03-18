@@ -59,26 +59,23 @@ defmodule FluminusBot.Accounts do
     end
   end
 
-  defp insert_or_update_module_changeset(
-         attrs = %{luminus_id: luminus_id, code: code, name: name, term: term}
-       )
-       when is_binary(luminus_id) and is_binary(code) and is_binary(name) and is_binary(term) do
+  defp insert_or_update_module_changeset(attrs = %{luminus_id: luminus_id})
+       when is_binary(luminus_id) do
+    {:ok, datetime} = DateTime.now("Etc/UTC")
+
     Module
     |> where(luminus_id: ^luminus_id)
     |> Repo.one()
     |> case do
       nil ->
-        Module.changeset(%Module{}, attrs)
+        Module.changeset(%Module{}, Map.put(attrs, :last_announcement_check, datetime))
 
       module ->
         Module.changeset(module, attrs)
     end
   end
 
-  def insert_or_update_module(
-        attrs = %{luminus_id: luminus_id, code: code, name: name, term: term}
-      )
-      when is_binary(luminus_id) and is_binary(code) and is_binary(name) and is_binary(term) do
+  def insert_or_update_module(attrs = %{luminus_id: luminus_id}) when is_binary(luminus_id) do
     attrs
     |> insert_or_update_module_changeset
     |> Repo.insert_or_update()
@@ -123,7 +120,7 @@ defmodule FluminusBot.Accounts do
     |> insert_or_update_user_modules(user, xs)
   end
 
-  defp insert_or_update_user_modules(multi = %Multi{}, user = %User{id: user_id}, []) do
+  defp insert_or_update_user_modules(multi = %Multi{}, %User{}, []) do
     Repo.transaction(multi)
   end
 
@@ -141,5 +138,38 @@ defmodule FluminusBot.Accounts do
       user_module = %UserModule{} ->
         UserModule.changeset(user_module, attrs)
     end
+  end
+
+  @spec get_all_modules :: [%Module{}]
+  def get_all_modules do
+    Repo.all(Module)
+  end
+
+  @spec get_all_module_luminus_ids :: [String.t()]
+  def get_all_module_luminus_ids do
+    Module
+    |> select([m], m.luminus_id)
+    |> Repo.all()
+  end
+
+  def get_module_by_luminus_id_preload_subscribers(luminus_id) when is_binary(luminus_id) do
+    Module
+    |> where(luminus_id: ^luminus_id)
+    |> join(:left, [m], u in assoc(m, :users), on: u.push_enabled == true)
+    |> preload([_, u], users: u)
+    |> Repo.one()
+  end
+
+  def remove_module(module = %Module{}) do
+    Repo.delete(module)
+  end
+
+  def disable_push_for_chat_id(chat_id) when is_integer(chat_id) do
+    insert_or_update_user(%{chat_id: chat_id, push_enabled: false})
+
+    UserModule
+    |> join(:inner, [um], u in assoc(um, :user))
+    |> where([_, u], u.chat_id == ^chat_id)
+    |> Repo.delete_all()
   end
 end

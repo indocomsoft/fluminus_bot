@@ -1,4 +1,4 @@
-defmodule FluminusBot.TokenRefresher do
+defmodule FluminusBot.Worker.TokenRefresher do
   @moduledoc """
   The GenServer that is in charge of making sure all tokens in the database is up to date.
   Otherwise, it will ask the user to re-login.
@@ -30,7 +30,7 @@ defmodule FluminusBot.TokenRefresher do
   end
 
   @impl true
-  def handle_call({:add, chat_id}, _from, state) when is_integer(chat_id) and is_map(state) do
+  def handle_call({:add, chat_id}, _from, state = %MapSet{}) when is_integer(chat_id) do
     if MapSet.member?(state, chat_id) do
       {:reply, {:ok, :existing}, state}
     else
@@ -40,28 +40,24 @@ defmodule FluminusBot.TokenRefresher do
   end
 
   @impl true
-  def handle_call(:list, _from, state) when is_map(state) do
+  def handle_call(:list, _from, state = %MapSet{}) do
     {:reply, {:ok, MapSet.to_list(state)}, state}
   end
 
   @impl true
-  def handle_info({:update, chat_id}, state) when is_map(state) do
+  def handle_info({:update, chat_id}, state = %MapSet{}) do
     Logger.info("Updating for #{chat_id}")
 
-    if MapSet.member?(state, chat_id) do
-      case Accounts.get_user_by_chat_id(chat_id) do
-        %User{jwt: jwt, refresh_token: refresh_token, chat_id: chat_id} ->
-          auth = Authorization.new(jwt, refresh_token)
+    case Accounts.get_user_by_chat_id(chat_id) do
+      %User{jwt: jwt, refresh_token: refresh_token, chat_id: chat_id} ->
+        auth = Authorization.new(jwt, refresh_token)
 
-          renew_jwt(auth, chat_id)
+        renew_jwt(auth, chat_id)
 
-          {:noreply, state}
+        {:noreply, state}
 
-        nil ->
-          {:noreply, MapSet.delete(state, chat_id)}
-      end
-    else
-      {:noreply, state}
+      nil ->
+        {:noreply, MapSet.delete(state, chat_id)}
     end
   end
 
@@ -109,7 +105,7 @@ defmodule FluminusBot.TokenRefresher do
 
   defp schedule_update(chat_id) do
     time = Enum.random(100..@interval)
-    Logger.info("Scheduling after #{time} ms")
+    Logger.info("TokenRefresher: Scheduling after #{time} ms")
     Process.send_after(self(), {:update, chat_id}, time)
   end
 end

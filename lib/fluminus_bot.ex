@@ -79,6 +79,7 @@ defmodule FluminusBot do
            modules <- Enum.map(modules, fn {_, v} -> v end),
            {:ok, _} <- Accounts.insert_or_update_user_modules(user, modules),
            {:ok, _} <- Accounts.insert_or_update_user(%{chat_id: chat_id, push_enabled: true}) do
+        FluminusBot.Worker.AnnouncementPoller.add_modules(modules)
         answer(cnt, "Push notification has been **enabled**", parse_mode: "markdown")
       else
         {:error, :expired_token} ->
@@ -100,7 +101,7 @@ defmodule FluminusBot do
 
   defp process_push("off", %User{chat_id: chat_id, push_enabled: push_enabled}, cnt) do
     if push_enabled do
-      IO.inspect(Accounts.insert_or_update_user(%{chat_id: chat_id, push_enabled: false}))
+      Accounts.disable_push_for_chat_id(chat_id)
       answer(cnt, "Push notification has been **disabled**", parse_mode: "markdown")
     else
       answer(cnt, "Push notification is already disabled")
