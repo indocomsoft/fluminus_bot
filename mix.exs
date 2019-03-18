@@ -11,7 +11,7 @@ defmodule FluminusBot.MixProject do
       source_url: "https://github.com/indocomsoft/fluminus_bot",
       docs: [
         main: "readme",
-        extras: ["REAMDE.md"]
+        extras: ["README.md"]
       ],
       package: package(),
       description: description(),
