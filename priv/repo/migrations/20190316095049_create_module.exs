@@ -7,6 +7,7 @@ defmodule FluminusBot.Repo.Migrations.CreateModule do
       add(:code, :string, null: false)
       add(:name, :string, null: false)
       add(:term, :string, null: false)
+      add(:last_announcement_check, :utc_datetime)
 
       timestamps()
     end

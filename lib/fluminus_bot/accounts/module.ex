@@ -12,16 +12,18 @@ defmodule FluminusBot.Accounts.Module do
     field(:code, :string)
     field(:name, :string)
     field(:term, :string)
+    field(:last_announcement_check, :utc_datetime)
     many_to_many(:users, User, join_through: UserModule)
 
     timestamps()
   end
 
   @required_fields ~w(luminus_id code name term)a
+  @optional_fields ~w(last_announcement_check)a
 
   def changeset(module = %__MODULE__{}, params \\ %{}) do
     module
-    |> cast(params, @required_fields)
+    |> cast(params, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
   end
 end
