@@ -46,7 +46,7 @@ defmodule FluminusBot.MixProject do
     [
       {:ecto_sql, "~> 3.0"},
       {:ex_gram, "~> 0.6"},
-      {:fluminus, "~> 0.2"},
+      {:fluminus, "~> 1.0"},
       {:jason, "~> 1.1"},
       {:plug_cowboy, "~> 2.0"},
       {:postgrex, ">= 0.0.0"},

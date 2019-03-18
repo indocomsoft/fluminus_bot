@@ -4,9 +4,9 @@ defmodule FluminusBot.Accounts do
   """
   import Ecto.Query
 
-  alias FluminusBot.Repo
-
+  alias Ecto.Multi
   alias FluminusBot.Accounts.{Module, User, UserModule}
+  alias FluminusBot.Repo
 
   @spec insert_or_update_user(map()) :: {:ok, %User{}} | {:error, Ecto.Changeset.t()}
   def insert_or_update_user(attrs = %{chat_id: chat_id}) when is_integer(chat_id) do
@@ -59,10 +59,10 @@ defmodule FluminusBot.Accounts do
     end
   end
 
-  def insert_or_update_module(
-        attrs = %{luminus_id: luminus_id, code: code, name: name, term: term}
-      )
-      when is_binary(luminus_id) and is_binary(code) and is_binary(name) and is_binary(term) do
+  defp insert_or_update_module_changeset(
+         attrs = %{luminus_id: luminus_id, code: code, name: name, term: term}
+       )
+       when is_binary(luminus_id) and is_binary(code) and is_binary(name) and is_binary(term) do
     Module
     |> where(luminus_id: ^luminus_id)
     |> Repo.one()
@@ -73,25 +73,73 @@ defmodule FluminusBot.Accounts do
       module ->
         Module.changeset(module, attrs)
     end
+  end
+
+  def insert_or_update_module(
+        attrs = %{luminus_id: luminus_id, code: code, name: name, term: term}
+      )
+      when is_binary(luminus_id) and is_binary(code) and is_binary(name) and is_binary(term) do
+    attrs
+    |> insert_or_update_module_changeset
     |> Repo.insert_or_update()
   end
 
-  def insert_or_update_user_modules(%User{id: user_id}, modules) when is_list(modules) do
-    for %Module{id: module_id} <- modules do
-      attrs = %{user_id: user_id, module_id: module_id}
+  def insert_or_update_modules(modules) when is_list(modules) do
+    insert_or_update_modules(Multi.new(), modules)
+  end
 
-      UserModule
-      |> where(user_id: ^user_id)
-      |> where(module_id: ^module_id)
-      |> Repo.one()
-      |> case do
-        nil ->
-          UserModule.changeset(%UserModule{}, attrs)
+  defp insert_or_update_modules(multi = %Multi{}, [
+         %Fluminus.API.Module{id: luminus_id, code: code, name: name, term: term} | xs
+       ]) do
+    multi
+    |> Multi.insert_or_update(
+      code,
+      insert_or_update_module_changeset(%{
+        luminus_id: luminus_id,
+        code: code,
+        name: name,
+        term: term
+      })
+    )
+    |> insert_or_update_modules(xs)
+  end
 
-        user_module = %UserModule{} ->
-          UserModule.changeset(user_module, attrs)
-      end
-      |> Repo.insert_or_update()
+  defp insert_or_update_modules(multi = %Multi{}, []) do
+    Repo.transaction(multi)
+  end
+
+  def insert_or_update_user_modules(user = %User{}, modules) when is_list(modules) do
+    insert_or_update_user_modules(Multi.new(), user, modules)
+  end
+
+  defp insert_or_update_user_modules(multi = %Multi{}, user = %User{id: user_id}, [
+         module = %Module{id: module_id} | xs
+       ]) do
+    multi
+    |> Multi.insert_or_update(
+      "#{user_id},#{module_id}",
+      insert_or_update_user_module_changeset(user, module)
+    )
+    |> insert_or_update_user_modules(user, xs)
+  end
+
+  defp insert_or_update_user_modules(multi = %Multi{}, user = %User{id: user_id}, []) do
+    Repo.transaction(multi)
+  end
+
+  def insert_or_update_user_module_changeset(%User{id: user_id}, %Module{id: module_id}) do
+    attrs = %{user_id: user_id, module_id: module_id}
+
+    UserModule
+    |> where(user_id: ^user_id)
+    |> where(module_id: ^module_id)
+    |> Repo.one()
+    |> case do
+      nil ->
+        UserModule.changeset(%UserModule{}, attrs)
+
+      user_module = %UserModule{} ->
+        UserModule.changeset(user_module, attrs)
     end
   end
 end

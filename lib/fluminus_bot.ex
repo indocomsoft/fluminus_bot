@@ -10,7 +10,7 @@ defmodule FluminusBot do
 
   alias Fluminus.{API, Authorization}
   alias FluminusBot.Accounts
-  alias FluminusBot.Accounts.{User, UserModule}
+  alias FluminusBot.Accounts.User
 
   command("start")
   command("delete")
@@ -58,6 +58,7 @@ defmodule FluminusBot do
   def handle(message, cnt) do
     Logger.info("message = #{inspect(message)}")
     Logger.info("cnt = #{inspect(cnt)}")
+    answer(cnt, "Unknown command.")
   end
 
   defp process_push(
@@ -70,27 +71,40 @@ defmodule FluminusBot do
          },
          cnt
        ) do
-    auth = Authorization.new(jwt, refresh_token)
-    modules = Fluminus.API.modules(auth, true)
-
-    modules =
-      modules
-      |> Enum.map(fn %{id: luminus_id, code: code, name: name, term: term} ->
-        %{luminus_id: luminus_id, code: code, name: name, term: term}
-      end)
-      |> Enum.map(fn attrs ->
-        {:ok, module} = Accounts.insert_or_update_module(attrs)
-        module
-      end)
-
     if not push_enabled do
-      Accounts.insert_or_update_user(%{chat_id: chat_id, push: true})
-    end
+      auth = Authorization.new(jwt, refresh_token)
 
-    Accounts.insert_or_update_user_modules(user, modules)
+      with {:ok, modules} <- API.modules(auth, true),
+           {:ok, modules} <- Accounts.insert_or_update_modules(modules),
+           modules <- Enum.map(modules, fn {_, v} -> v end),
+           {:ok, _} <- Accounts.insert_or_update_user_modules(user, modules),
+           {:ok, _} <- Accounts.insert_or_update_user(%{chat_id: chat_id, push_enabled: true}) do
+        answer(cnt, "Push notification has been **enabled**", parse_mode: "markdown")
+      else
+        {:error, :expired_token} ->
+          answer(cnt, "Your token expired. Please login again!",
+            reply_markup: reply_markup(chat_id)
+          )
+
+        {:error, error} ->
+          answer(
+            cnt,
+            "Unexplainable error. Please contact @indocomsoft and tell him this:\n```#{error}\n```",
+            parse_mode: "markdown"
+          )
+      end
+    else
+      answer(cnt, "Push notification is already enabled")
+    end
   end
 
-  defp process_push("off", user = %User{}, cnt) do
+  defp process_push("off", %User{chat_id: chat_id, push_enabled: push_enabled}, cnt) do
+    if push_enabled do
+      IO.inspect(Accounts.insert_or_update_user(%{chat_id: chat_id, push_enabled: false}))
+      answer(cnt, "Push notification has been **disabled**", parse_mode: "markdown")
+    else
+      answer(cnt, "Push notification is already disabled")
+    end
   end
 
   defp process_push(_, nil, cnt) do
