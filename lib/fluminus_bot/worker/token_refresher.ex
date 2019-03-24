@@ -50,7 +50,7 @@ defmodule FluminusBot.Worker.TokenRefresher do
 
     case Accounts.get_user_by_chat_id(chat_id) do
       %User{jwt: jwt, refresh_token: refresh_token, chat_id: chat_id} ->
-        auth = Authorization.new(jwt, refresh_token)
+        auth = Authorization.new(jwt || "", refresh_token || "")
 
         renew_jwt(auth, chat_id, state)
 
