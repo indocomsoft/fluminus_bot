@@ -26,7 +26,7 @@ defmodule FluminusBot do
   command("stat")
   command("help")
 
-  def handle({:command, :stat}, cnt) do
+  def handle({:command, :stat, %{}}, cnt) do
     user_count = Accounts.user_count()
     user_push_enabled_count = Accounts.user_push_enabled_count()
     module_count = Accounts.module_count()
@@ -39,7 +39,7 @@ defmodule FluminusBot do
     )
   end
 
-  def handle({:command, :help}, cnt) do
+  def handle({:command, :help, %{}}, cnt) do
     answer(cnt, @help_message)
   end
 
