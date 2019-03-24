@@ -8,6 +8,25 @@ defmodule FluminusBot.Accounts do
   alias FluminusBot.Accounts.{Module, User, UserModule}
   alias FluminusBot.Repo
 
+  def user_count do
+    User
+    |> select([u], count(u))
+    |> Repo.one()
+  end
+
+  def user_push_enabled_count do
+    User
+    |> select([u], count(u))
+    |> where(push_enabled: true)
+    |> Repo.one()
+  end
+
+  def module_count do
+    Module
+    |> select([m], count(m))
+    |> Repo.one()
+  end
+
   @spec insert_or_update_user(map()) :: {:ok, %User{}} | {:error, Ecto.Changeset.t()}
   def insert_or_update_user(attrs = %{chat_id: chat_id}) when is_integer(chat_id) do
     User

@@ -4,6 +4,14 @@ defmodule FluminusBot do
   """
   @bot :fluminus_bot
 
+  @help_message """
+  `/start` to get the welcome message
+  `/delete` to delete all your information from fluminus_bot
+  `/push on` to enable push notification
+  `/push off` to disable push notification
+  `/help` to get help message
+  """
+
   use ExGram.Bot, name: @bot
 
   require Logger
@@ -15,6 +23,23 @@ defmodule FluminusBot do
   command("start")
   command("delete")
   command("push")
+  command("stat")
+  command("help")
+
+  def handle({:command, :stat}, cnt) do
+    user_count = Accounts.user_count()
+    user_push_enabled_count = Accounts.user_push_enabled_count()
+    module_count = Accounts.module_count()
+
+    answer(
+      cnt,
+      "There are #{user} users, #{user_push_enabled_count} with push enabled, and #{module_count} modules."
+    )
+  end
+
+  def handle({:command, :help}, cnt) do
+    answer(cnt, @help_message)
+  end
 
   def handle(
         {:command, :start, %{from: from = %{id: chat_id, first_name: first_name}}},
@@ -28,8 +53,11 @@ defmodule FluminusBot do
       username: from[:username]
     })
 
-    answer(cnt, "Welcome to Fluminus Bot, #{first_name}! Let's get you set up.",
-      reply_markup: reply_markup(chat_id)
+    answer(
+      cnt,
+      "Welcome to Fluminus Bot, #{first_name}! Let's get you set up. Send `/help` to get hel to get help.",
+      reply_markup: reply_markup(chat_id),
+      parse_mode: "markdown"
     )
   end
 

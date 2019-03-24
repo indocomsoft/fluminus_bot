@@ -47,8 +47,13 @@ defmodule FluminusBot.Router do
 
         Accounts.insert_or_update_user(%{chat_id: chat_id, jwt: jwt, refresh_token: refresh_token})
 
-        ExGram.send_message(chat_id, "You are logged in!")
+        ExGram.send_message(
+          chat_id,
+          "You are logged in! Note that you need to re-login every 10 hours."
+        )
+
         FluminusBot.Worker.TokenRefresher.add_new_chat_id(chat_id)
+
         Conn.resp(conn, 200, "Logged in! You can close this now.")
 
       {:error, :invalid_credentials} ->
