@@ -40,7 +40,7 @@ defmodule FluminusBot do
   end
 
   def handle({:command, :help, %{}}, cnt) do
-    answer(cnt, @help_message)
+    answer(cnt, @help_message, parse_mode: "markdown")
   end
 
   def handle(
