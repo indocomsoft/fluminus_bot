@@ -71,7 +71,9 @@ defmodule FluminusBot do
          },
          cnt
        ) do
-    if not push_enabled do
+    if push_enabled do
+      answer(cnt, "Push notification is already enabled")
+    else
       auth = Authorization.new(jwt, refresh_token)
 
       with {:ok, modules} <- API.modules(auth, true),
@@ -94,8 +96,6 @@ defmodule FluminusBot do
             parse_mode: "markdown"
           )
       end
-    else
-      answer(cnt, "Push notification is already enabled")
     end
   end
 
