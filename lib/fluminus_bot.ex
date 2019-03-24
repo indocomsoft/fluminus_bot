@@ -6,7 +6,7 @@ defmodule FluminusBot do
 
   @help_message """
   `/start` to get the welcome message
-  `/delete` to delete all your information from fluminus_bot
+  `/delete` to delete all your information from fluminus\\_bot
   `/push on` to enable push notification
   `/push off` to disable push notification
   `/help` to get help message
