@@ -33,7 +33,9 @@ defmodule FluminusBot do
 
     answer(
       cnt,
-      "There are #{user} users, #{user_push_enabled_count} with push enabled, and #{module_count} modules."
+      "There are #{user_count} users, #{user_push_enabled_count} with push enabled, and #{
+        module_count
+      } modules."
     )
   end
 
