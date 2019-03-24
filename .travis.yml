@@ -16,6 +16,16 @@ cache:
 
 env: MIX_ENV=test
 
+services:
+  - postgresql
+
+before_install:
+  - cp config/secrets.exs.example config/secrets.exs
+
+before_script:
+  - mix ecto.create
+  - mix ecto.migrate
+
 script:
   - mix coveralls.travis
   - mix credo
