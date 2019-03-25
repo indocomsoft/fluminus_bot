@@ -33,3 +33,5 @@ config :logger, backends: [:console], compile_time_purge_level: :debug
 import_config "#{Mix.env()}.exs"
 
 import_config "secrets.exs"
+
+import_config "#{Mix.env()}_secrets.exs"
