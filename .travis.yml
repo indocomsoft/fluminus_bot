@@ -21,7 +21,7 @@ services:
 
 before_install:
   - cp config/secrets.exs.example config/secrets.exs
-  - cp config/test_secrets.exs.exs.example config/test_secrets.exs
+  - cp config/test_secrets.exs.example config/test_secrets.exs
 
 before_script:
   - mix ecto.create
