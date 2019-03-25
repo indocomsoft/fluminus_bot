@@ -2,6 +2,8 @@
 # and its dependencies with the aid of the Mix.Config module.
 use Mix.Config
 
+config :fluminus_bot, name: :fluminus_bot
+
 config :fluminus_bot, ecto_repos: [FluminusBot.Repo]
 
 config :logger, backends: [:console], compile_time_purge_level: :debug

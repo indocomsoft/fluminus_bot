@@ -18,7 +18,7 @@ PR's are welcome.
 ## Installation
 1. Clone this repo.
 1. Copy `config/secrets.exs.example` to `config/secrets.exs`, and fill in the appropriate setting.
-1. If necessary, change the bot name in `lib/fluminus_bot.ex`, specifically the `@bot` module attribute.
+1. If necessary, change the bot name in `config/config.exs`.
 1. Run `mix start`.
 
 The docs can be found at [https://hexdocs.pm/fluminus_bot](https://hexdocs.pm/fluminus_bot).

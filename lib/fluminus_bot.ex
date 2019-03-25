@@ -2,7 +2,6 @@ defmodule FluminusBot do
   @moduledoc """
   Documentation for FluminusBot.
   """
-  @bot :fluminus_bot
 
   @help_message """
   `/start` to get the welcome message
@@ -12,7 +11,7 @@ defmodule FluminusBot do
   `/help` to get help message
   """
 
-  use ExGram.Bot, name: @bot
+  use ExGram.Bot, name: Application.get_env(:fluminus_bot, :name)
 
   require Logger
 
