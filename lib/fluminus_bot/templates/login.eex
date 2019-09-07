@@ -16,7 +16,7 @@
       <div class="alert alert-danger" role="alert">
         <p>Logging in requires your credentials to pass through the fluminus server.</p>
         <p>We promise not to store your username and password, but we will need to store tokens we got from the server.</p>
-        <p>If it makes you feel safer, you need to re-login every 10 hours because your token will expire then.</p>
+        <p>If it makes you feel safer, you need to re-login every 8 hours because your token will expire then.</p>
         <p><strong>DO THIS AT YOUR OWN RISK</strong></p>
       </div>
       <form method="post" action="auth">
