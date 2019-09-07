@@ -4,8 +4,8 @@ defmodule FluminusBot.Worker.AnnouncementPoller do
   updates to the users who subscribed.
   """
 
-  # 30 minutes
-  @interval 30 * 60 * 1000
+  # 1 minutes
+  @interval 1 * 60 * 1000
 
   use GenServer
 
@@ -67,9 +67,9 @@ defmodule FluminusBot.Worker.AnnouncementPoller do
            users: users,
            last_announcement_check: last_announcement_check
          },
-         [%User{jwt: jwt, refresh_token: refresh_token} | other_users]
+         [%User{jwt: jwt} | other_users]
        ) do
-    auth = Authorization.new(jwt, refresh_token)
+    auth = Authorization.new(jwt)
 
     case API.Module.announcements(%API.Module{id: luminus_id}, auth) do
       {:ok, announcements} ->

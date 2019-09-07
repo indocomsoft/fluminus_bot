@@ -40,19 +40,22 @@ defmodule FluminusBot.Router do
     %{params: %{"nusnet" => nusnet, "password" => password, "chat_id" => chat_id}} = conn
     chat_id = String.to_integer(chat_id)
 
-    case Authorization.jwt(nusnet, password) do
+    case Authorization.vafs_jwt(nusnet, password) do
       {:ok, authorization = %Authorization{}} ->
         jwt = Authorization.get_jwt(authorization)
-        refresh_token = Authorization.get_refresh_token(authorization)
 
-        Accounts.insert_or_update_user(%{chat_id: chat_id, jwt: jwt, refresh_token: refresh_token})
+        # TODO get expiry from the response
+        {:ok, now} = DateTime.now("Etc/UTC")
+        expiry = DateTime.add(now, 28_800)
+
+        IO.inspect(Accounts.insert_or_update_user(%{chat_id: chat_id, jwt: jwt, expiry: expiry}))
 
         ExGram.send_message(
           chat_id,
-          "You are logged in! Note that you need to re-login every 10 hours."
+          "You are logged in! Note that you need to re-login every 8 hours."
         )
 
-        FluminusBot.Worker.TokenRefresher.add_new_chat_id(chat_id)
+        FluminusBot.Worker.TokenRefresher.add_new_chat_id(chat_id, expiry)
 
         Conn.resp(conn, 200, "Logged in! You can close this now.")
 

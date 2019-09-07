@@ -54,10 +54,10 @@ defmodule FluminusBot.Accounts do
     Repo.all(User)
   end
 
-  @spec get_all_chat_ids :: [integer()]
-  def get_all_chat_ids do
+  @spec get_all_chat_id_expiries :: [{integer(), DateTime.t()}]
+  def get_all_chat_id_expiries do
     User
-    |> select([u], u.chat_id)
+    |> select([u], {u.chat_id, u.expiry})
     |> Repo.all()
   end
 
@@ -172,9 +172,11 @@ defmodule FluminusBot.Accounts do
   end
 
   def get_module_by_luminus_id_preload_subscribers(luminus_id) when is_binary(luminus_id) do
+    {:ok, now} = DateTime.now("Etc/UTC")
+
     Module
     |> where(luminus_id: ^luminus_id)
-    |> join(:left, [m], u in assoc(m, :users), on: u.push_enabled == true)
+    |> join(:left, [m], u in assoc(m, :users), on: u.push_enabled == true and u.expiry > ^now)
     |> preload([_, u], users: u)
     |> Repo.one()
   end

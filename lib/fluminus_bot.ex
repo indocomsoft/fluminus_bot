@@ -95,7 +95,6 @@ defmodule FluminusBot do
          user = %User{
            chat_id: chat_id,
            jwt: jwt,
-           refresh_token: refresh_token,
            push_enabled: push_enabled
          },
          cnt
@@ -103,7 +102,7 @@ defmodule FluminusBot do
     if push_enabled do
       answer(cnt, "Push notification is already enabled")
     else
-      auth = Authorization.new(jwt, refresh_token)
+      auth = Authorization.new(jwt)
 
       with {:ok, modules} <- API.modules(auth, true),
            {:ok, modules} <- Accounts.insert_or_update_modules(modules),

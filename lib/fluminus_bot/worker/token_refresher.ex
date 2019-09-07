@@ -22,19 +22,22 @@ defmodule FluminusBot.Worker.TokenRefresher do
   @impl true
   def init(_) do
     Logger.info("TokenRefresher: loading all chat_ids")
-    chat_ids = Accounts.get_all_chat_ids()
 
-    Enum.each(chat_ids, &schedule_update/1)
+    chat_id_expiries = Accounts.get_all_chat_id_expiries()
+
+    Enum.each(chat_id_expiries, &schedule_update/1)
+
+    chat_ids = Enum.map(chat_id_expiries, fn {chat_id, _} -> chat_id end)
 
     {:ok, MapSet.new(chat_ids)}
   end
 
   @impl true
-  def handle_call({:add, chat_id}, _from, state = %MapSet{}) when is_integer(chat_id) do
+  def handle_call({:add, {chat_id, expiry}}, _from, state = %MapSet{}) when is_integer(chat_id) do
     if MapSet.member?(state, chat_id) do
       {:reply, {:ok, :existing}, state}
     else
-      schedule_update(chat_id)
+      schedule_update({chat_id, expiry})
       {:reply, {:ok, :new}, MapSet.put(state, chat_id)}
     end
   end
@@ -49,64 +52,70 @@ defmodule FluminusBot.Worker.TokenRefresher do
     Logger.info("Updating for #{chat_id}")
 
     case Accounts.get_user_by_chat_id(chat_id) do
-      %User{jwt: jwt, refresh_token: refresh_token, chat_id: chat_id} ->
-        auth = Authorization.new(jwt || "", refresh_token || "")
+      %User{jwt: jwt, chat_id: chat_id} ->
+        case check_token_expiry(chat_id, jwt) do
+          :ok ->
+            {:ok, now} = DateTime.now("Etc/UTC")
+            Logger.info(inspect(DateTime.add(now, @interval)))
+            schedule_update({chat_id, DateTime.add(now, @interval)})
+            {:noreply, state}
 
-        renew_jwt(auth, chat_id, state)
+          {:error, :expired} ->
+            Logger.info("Token of #{chat_id} expired")
+
+            ExGram.send_message(chat_id, "Your token expired. Please login again!",
+              reply_markup: FluminusBot.reply_markup(chat_id)
+            )
+
+            {:noreply, MapSet.delete(state, chat_id)}
+        end
 
       nil ->
         {:noreply, MapSet.delete(state, chat_id)}
     end
   end
 
-  defp renew_jwt(auth = %Authorization{}, chat_id, state = %MapSet{}) when is_integer(chat_id) do
-    case Authorization.renew_jwt(auth) do
-      {:ok, auth = %Authorization{}} ->
-        jwt = Authorization.get_jwt(auth)
-        refresh_token = Authorization.get_refresh_token(auth)
+  defp check_token_expiry(chat_id, jwt) do
+    auth = Authorization.new(jwt || "")
 
-        Accounts.insert_or_update_user(%{
-          chat_id: chat_id,
-          jwt: jwt,
-          refresh_token: refresh_token
-        })
-
-        Logger.info("Updated token for #{chat_id}")
-
-        schedule_update(chat_id)
-        {:noreply, state}
-
-      {:error, :invalid_authorization} ->
-        reply_markup = FluminusBot.reply_markup(chat_id)
-
-        ExGram.send_message(chat_id, "Your token expired. Please login again!",
-          reply_markup: reply_markup
-        )
-
-        {:noreply, MapSet.delete(state, chat_id)}
-
-      {:error, _} ->
-        {:noreply, state}
+    case Fluminus.API.name(auth) do
+      {:ok, _} -> :ok
+      {:error, :expired_token} -> {:error, :expired}
     end
   end
+
+  defp schedule_update({chat_id, time}) do
+    {:ok, now} = DateTime.now("Etc/UTC")
+
+    diff =
+      case time do
+        nil ->
+          1
+
+        _ ->
+          case DateTime.diff(time, now) do
+            x when x <= 0 -> 1
+            x -> x
+          end
+      end
+
+    Logger.info("TokenRefresher: Scheduling for #{time}, after #{diff} s")
+    Process.send_after(self(), {:update, chat_id}, diff)
+  end
+
+  # CLIENT
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, nil, name: __MODULE__)
   end
 
-  @spec add_new_chat_id(integer()) :: {:ok, :new} | {:ok, :existing}
-  def add_new_chat_id(chat_id) when is_integer(chat_id) do
-    GenServer.call(__MODULE__, {:add, chat_id})
+  @spec add_new_chat_id(integer(), DateTime.t()) :: {:ok, :new} | {:ok, :existing}
+  def add_new_chat_id(chat_id, expiry) when is_integer(chat_id) do
+    GenServer.call(__MODULE__, {:add, {chat_id, expiry}})
   end
 
   @spec all_chat_ids :: {:ok, [integer()]}
   def all_chat_ids do
     GenServer.call(__MODULE__, :list)
-  end
-
-  defp schedule_update(chat_id) do
-    time = Enum.random(100..@interval)
-    Logger.info("TokenRefresher: Scheduling after #{time} ms")
-    Process.send_after(self(), {:update, chat_id}, time)
   end
 end

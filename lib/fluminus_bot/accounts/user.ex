@@ -14,7 +14,7 @@ defmodule FluminusBot.Accounts.User do
     field(:chat_id, :integer)
     field(:push_enabled, :boolean, default: false)
     field(:jwt, :string)
-    field(:refresh_token, :string)
+    field(:expiry, :utc_datetime)
 
     many_to_many(:modules, Module, join_through: UserModule)
 
@@ -22,7 +22,7 @@ defmodule FluminusBot.Accounts.User do
   end
 
   @required_fields ~w(chat_id first_name)a
-  @optional_fields ~w(last_name username push_enabled jwt refresh_token)a
+  @optional_fields ~w(last_name username push_enabled jwt expiry)a
 
   def changeset(user = %__MODULE__{}, params \\ %{}) do
     user
