@@ -80,7 +80,7 @@ defmodule FluminusBot.Accounts do
 
   defp insert_or_update_module_changeset(attrs = %{luminus_id: luminus_id})
        when is_binary(luminus_id) do
-    {:ok, datetime} = DateTime.from_unix(0)
+    {:ok, datetime} = DateTime.now("Etc/UTC")
 
     Module
     |> where(luminus_id: ^luminus_id)
