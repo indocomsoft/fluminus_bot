@@ -90,16 +90,16 @@ defmodule FluminusBot.Worker.TokenRefresher do
     diff =
       case time do
         nil ->
-          1
+          1_000
 
         _ ->
-          case DateTime.diff(time, now) do
-            x when x <= 0 -> 1
+          case DateTime.diff(time, now, :millisecond) do
+            x when x <= 0 -> 1_000
             x -> x
           end
       end
 
-    Logger.info("TokenRefresher: Scheduling for #{time}, after #{diff} s")
+    Logger.info("TokenRefresher: Scheduling for #{time}, after #{diff} ms")
     Process.send_after(self(), {:update, chat_id}, diff)
   end
 
