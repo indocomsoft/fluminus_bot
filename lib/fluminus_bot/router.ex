@@ -37,43 +37,47 @@ defmodule FluminusBot.Router do
   end
 
   match "/auth" do
-    %{params: %{"nusnet" => nusnet, "password" => password, "chat_id" => chat_id}} = conn
-    chat_id = String.to_integer(chat_id)
+    try do
+      %{params: %{"nusnet" => nusnet, "password" => password, "chat_id" => chat_id}} = conn
+      chat_id = String.to_integer(chat_id)
 
-    case Authorization.vafs_jwt(nusnet, password) do
-      {:ok, authorization = %Authorization{}} ->
-        jwt = Authorization.get_jwt(authorization)
+      case Authorization.vafs_jwt(nusnet, password) do
+        {:ok, authorization = %Authorization{}} ->
+          jwt = Authorization.get_jwt(authorization)
 
-        # TODO get expiry from the response
-        {:ok, now} = DateTime.now("Etc/UTC")
-        expiry = DateTime.add(now, 28_800)
+          # TODO get expiry from the response
+          {:ok, now} = DateTime.now("Etc/UTC")
+          expiry = DateTime.add(now, 28_800)
 
-        Accounts.insert_or_update_user(%{chat_id: chat_id, jwt: jwt, expiry: expiry})
+          {:ok, _} = Accounts.insert_or_update_user(%{chat_id: chat_id, jwt: jwt, expiry: expiry})
 
-        ExGram.send_message(
-          chat_id,
-          "You are logged in! Note that you need to re-login every 8 hours."
-        )
+          ExGram.send_message(
+            chat_id,
+            "You are logged in! Note that you need to re-login every 8 hours."
+          )
 
-        FluminusBot.Worker.TokenRefresher.add_new_chat_id(chat_id, expiry)
+          {:ok, _} = FluminusBot.Worker.TokenRefresher.add_new_chat_id(chat_id, expiry)
 
-        Conn.resp(conn, 200, "Logged in! You can close this now.")
+          Conn.resp(conn, 200, "Logged in! You can close this now.")
 
-      {:error, :invalid_credentials} ->
-        serve_error(
-          conn,
-          403,
-          "Forbidden",
-          "You have entered an invalid credential",
-          "/login?chat_id=#{chat_id}"
-        )
-
-      _ ->
+        {:error, :invalid_credentials} ->
+          serve_error(
+            conn,
+            403,
+            "Forbidden",
+            "You have entered an invalid credential",
+            "/login?chat_id=#{chat_id}"
+          )
+      end
+    rescue
+      e ->
         serve_error(
           conn,
           500,
           "Internal Server Error",
-          "Either we have been banned, or LumiNUS server is flaky. Or they lied to me about Erlang's nine-nine's :("
+          "Either we have been banned, or LumiNUS server is flaky. Or they lied to me about Erlang's nine-nine's :(\n#{
+            inspect(e)
+          }"
         )
     end
   end
