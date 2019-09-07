@@ -9,7 +9,7 @@ defmodule FluminusBot.Worker.TokenRefresher do
   """
 
   # 20 minutes
-  @interval 20 * 60 * 1000
+  @interval 1 * 60 * 1000
 
   use GenServer
 
