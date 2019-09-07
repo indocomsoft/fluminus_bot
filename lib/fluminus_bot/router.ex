@@ -10,13 +10,13 @@ defmodule FluminusBot.Router do
   plug(:match)
   plug(:dispatch)
 
-  match "/" do
+  match "/", via: :get do
     conn
     |> put_resp_header("Location", "https://github.com/indocomsoft/fluminus_bot")
     |> resp(302, "")
   end
 
-  match "/login" do
+  match "/login", via: :get do
     case conn.params do
       %{"chat_id" => chat_id} ->
         body =
@@ -36,7 +36,7 @@ defmodule FluminusBot.Router do
     end
   end
 
-  match "/auth" do
+  match "/auth", via: :post do
     try do
       %{params: %{"nusnet" => nusnet, "password" => password, "chat_id" => chat_id}} = conn
       chat_id = String.to_integer(chat_id)
@@ -82,7 +82,7 @@ defmodule FluminusBot.Router do
     end
   end
 
-  match "fluminus.ico" do
+  match "fluminus.ico", via: :get do
     Conn.send_file(conn, 200, "priv/static/fluminus.ico")
   end
 
