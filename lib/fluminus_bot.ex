@@ -56,7 +56,7 @@ defmodule FluminusBot do
 
     answer(
       cnt,
-      "Welcome to Fluminus Bot, #{first_name}! Let's get you set up. Send `/help` to get hel to get help.",
+      "Welcome to Fluminus Bot, #{first_name}! Let's get you set up. Send `/help` to get help.",
       reply_markup: reply_markup(chat_id),
       parse_mode: "markdown"
     )
@@ -108,7 +108,8 @@ defmodule FluminusBot do
            {:ok, modules} <- Accounts.insert_or_update_modules(modules),
            modules <- Enum.map(modules, fn {_, v} -> v end),
            {:ok, _} <- Accounts.insert_or_update_user_modules(user, modules),
-           {:ok, _} <- Accounts.insert_or_update_user(%{chat_id: chat_id, push_enabled: true}) do
+           {:ok, _} <- Accounts.insert_or_update_user(%{chat_id: chat_id, push_enabled: true}),
+           {:ok, _} <- FluminusBot.Worker.TokenRefresher.add_new_chat_id(chat_id, expiry) do
         FluminusBot.Worker.AnnouncementPoller.add_modules(modules)
         answer(cnt, "Push notification has been **enabled**", parse_mode: "markdown")
       else

@@ -57,6 +57,7 @@ defmodule FluminusBot.Accounts do
   @spec get_all_chat_id_expiries :: [{integer(), DateTime.t()}]
   def get_all_chat_id_expiries do
     User
+    |> where(push_enabled: true)
     |> select([u], {u.chat_id, u.expiry})
     |> Repo.all()
   end
