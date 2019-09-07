@@ -53,7 +53,7 @@ defmodule FluminusBot.Worker.TokenRefresher do
 
     case Accounts.get_user_by_chat_id(chat_id) do
       %User{jwt: jwt, chat_id: chat_id} ->
-        case check_token_expiry(chat_id, jwt) do
+        case check_token_expiry(jwt) do
           :ok ->
             {:ok, now} = DateTime.now("Etc/UTC")
             Logger.info(inspect(DateTime.add(now, @interval)))
@@ -75,7 +75,7 @@ defmodule FluminusBot.Worker.TokenRefresher do
     end
   end
 
-  defp check_token_expiry(chat_id, jwt) do
+  defp check_token_expiry(jwt) do
     auth = Authorization.new(jwt || "")
 
     case Fluminus.API.name(auth) do
