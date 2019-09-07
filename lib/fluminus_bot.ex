@@ -109,6 +109,7 @@ defmodule FluminusBot do
            modules <- Enum.map(modules, fn {_, v} -> v end),
            {:ok, _} <- Accounts.insert_or_update_user_modules(user, modules),
            {:ok, _} <- Accounts.insert_or_update_user(%{chat_id: chat_id, push_enabled: true}),
+           {:ok, %User{expiry: expiry}} <- Accounts.get_user_by_chat_id(chat_id),
            {:ok, _} <- FluminusBot.Worker.TokenRefresher.add_new_chat_id(chat_id, expiry) do
         FluminusBot.Worker.AnnouncementPoller.add_modules(modules)
         answer(cnt, "Push notification has been **enabled**", parse_mode: "markdown")
