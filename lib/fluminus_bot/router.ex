@@ -48,7 +48,7 @@ defmodule FluminusBot.Router do
         {:ok, now} = DateTime.now("Etc/UTC")
         expiry = DateTime.add(now, 28_800)
 
-        IO.inspect(Accounts.insert_or_update_user(%{chat_id: chat_id, jwt: jwt, expiry: expiry}))
+        Accounts.insert_or_update_user(%{chat_id: chat_id, jwt: jwt, expiry: expiry})
 
         ExGram.send_message(
           chat_id,
