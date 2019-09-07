@@ -52,7 +52,7 @@ defmodule FluminusBot.Worker.TokenRefresher do
     Logger.info("Updating for #{chat_id}")
 
     case Accounts.get_user_by_chat_id(chat_id) do
-      %User{jwt: jwt, chat_id: chat_id} ->
+      %User{jwt: jwt, chat_id: chat_id, push_enabled: true} ->
         case check_token_expiry(jwt) do
           :ok ->
             {:ok, now} = DateTime.now("Etc/UTC")
@@ -70,7 +70,7 @@ defmodule FluminusBot.Worker.TokenRefresher do
             {:noreply, MapSet.delete(state, chat_id)}
         end
 
-      nil ->
+      _ ->
         {:noreply, MapSet.delete(state, chat_id)}
     end
   end
