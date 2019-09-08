@@ -48,6 +48,7 @@ defmodule FluminusBot.MixProject do
       {:ex_gram, "~> 0.6"},
       {:fluminus, "~> 2.0"},
       {:jason, "~> 1.1"},
+      {:jose, "~> 1.9"},
       {:plug_cowboy, "~> 2.0"},
       {:postgrex, ">= 0.0.0"},
       {:dialyxir, "~> 1.0.0-rc.4", only: :dev, runtime: false},

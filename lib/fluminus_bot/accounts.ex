@@ -177,7 +177,7 @@ defmodule FluminusBot.Accounts do
 
     Module
     |> where(luminus_id: ^luminus_id)
-    |> join(:left, [m], u in assoc(m, :users), on: u.push_enabled == true and u.expiry > ^now)
+    |> join(:left, [m], u in assoc(m, :users), on: u.push_enabled == true)
     |> preload([_, u], users: u)
     |> Repo.one()
   end

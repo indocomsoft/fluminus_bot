@@ -55,9 +55,20 @@ defmodule FluminusBot.Worker.TokenRefresher do
       %User{jwt: jwt, chat_id: chat_id, push_enabled: true} ->
         case check_token_expiry(jwt) do
           :ok ->
-            {:ok, now} = DateTime.now("Etc/UTC")
-            Logger.info(inspect(DateTime.add(now, @interval)))
-            schedule_update({chat_id, DateTime.add(now, @interval)})
+            datetime =
+              try do
+                %{fields: %{"exp" => exp}} = JOSE.JWT.peek_payload(jwt)
+                {:ok, dt} = DateTime.from_unix(exp)
+                Accounts.insert_or_update_user(%{chat_id: chat_id, expiry: dt})
+                Logger.info("Detected wrong expiry for #{chat_id}")
+                dt
+              rescue
+                _ ->
+                  {:ok, now} = DateTime.now("Etc/UTC")
+                  DateTime.add(now, @interval)
+              end
+
+            schedule_update({chat_id, datetime})
             {:noreply, state}
 
           {:error, :expired} ->
