@@ -175,8 +175,6 @@ defmodule FluminusBot.Accounts do
   end
 
   def get_module_by_luminus_id_preload_subscribers(luminus_id) when is_binary(luminus_id) do
-    {:ok, now} = DateTime.now("Etc/UTC")
-
     Module
     |> where(luminus_id: ^luminus_id)
     |> join(:left, [m], u in assoc(m, :users), on: u.push_enabled == true)
