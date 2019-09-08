@@ -81,7 +81,9 @@ defmodule FluminusBot.Accounts do
 
   defp insert_or_update_module_changeset(attrs = %{luminus_id: luminus_id})
        when is_binary(luminus_id) do
-    {:ok, datetime} = DateTime.now("Etc/UTC")
+    {:ok, now} = DateTime.now("Etc/UTC")
+    # Show all announcements from the last week
+    datetime = DateTime.add(now, -7 * 86_400)
 
     Module
     |> where(luminus_id: ^luminus_id)
