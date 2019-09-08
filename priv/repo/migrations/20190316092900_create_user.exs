@@ -8,12 +8,13 @@ defmodule FluminusBot.Repo.Migrations.CreateUser do
       add(:username, :string)
       add(:chat_id, :int, null: false)
       add(:push_enabled, :boolean, default: false)
-      add(:jwt, :string, size: 2048)
-      add(:refresh_token, :string, size: 1024)
+      add(:jwt, :string, size: 1024, null: false, default: "")
+      add(:expiry, :utc_datetime, null: true)
 
       timestamps()
     end
 
     create(unique_index(:users, [:chat_id]))
+    create(index(:users, [:expiry]))
   end
 end

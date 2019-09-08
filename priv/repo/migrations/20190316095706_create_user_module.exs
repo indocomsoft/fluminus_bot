@@ -4,7 +4,7 @@ defmodule FluminusBot.Repo.Migrations.CreateUserModule do
   def change do
     create table(:users_modules) do
       add(:user_id, references(:users, on_delete: :delete_all), null: false)
-      add(:module_id, references(:modules), null: false)
+      add(:module_id, references(:modules, on_delete: :delete_all), null: false)
 
       timestamps()
     end
